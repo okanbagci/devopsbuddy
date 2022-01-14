@@ -20,7 +20,7 @@ public class UserUtils {
     public static User createBasicUser() {
 
         User user = new User();
-        user.setUsername("username");
+        user.setUsername("basicUser");
         user.setPassword("secret");
         user.setEmail("a@b.com");
         user.setFirstName("firstName");

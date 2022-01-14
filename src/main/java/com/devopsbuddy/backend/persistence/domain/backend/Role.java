@@ -24,7 +24,7 @@ public class Role implements Serializable {
     private String name;
     
     // cascade is for the deleting all the users when the role is deleted
-    @OneToMany(mappedBy="user", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
+    @OneToMany(mappedBy="user", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     private Set<UserRole> userRoles = new HashSet<>();
 
 	public Role() {

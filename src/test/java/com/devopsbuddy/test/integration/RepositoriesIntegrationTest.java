@@ -19,6 +19,7 @@ import com.devopsbuddy.backend.persistence.repositories.RoleRepository;
 import com.devopsbuddy.backend.persistence.repositories.UserRepository;
 import com.devopsbuddy.enums.PlansEnum;
 import com.devopsbuddy.enums.RolesEnum;
+import com.devopsbuddy.utils.UserUtils;
 
 @SpringBootTest
 public class RepositoriesIntegrationTest {
@@ -59,24 +60,8 @@ public class RepositoriesIntegrationTest {
 	
 	@Test
 	public void testCreateNewUser() throws Exception {
-		Plan basicPlan = createPlan(PlansEnum.BASIC);
-		planRepository.save(basicPlan);
+		User basicUser = createUser();
 		
-		User basicUser = createBasicUser();
-		basicUser.setPlan(basicPlan);
-		
-		Role basicRole = createRole(RolesEnum.BASIC);
-		Set<UserRole> userRoles = new HashSet<>();
-		UserRole userRole = new UserRole(basicUser, basicRole);
-		userRoles.add(userRole);
-		
-		basicUser.getUserRoles().addAll(userRoles);
-		
-		for(UserRole ur: userRoles) {
-			roleRepository.save(ur.getRole());
-		}
-		
-		basicUser = userRepository.save(basicUser);
 		Optional<User> newlyCreatedUser = userRepository.findById(basicUser.getId());
 		Assert.assertNotNull(newlyCreatedUser.get());
 		Assert.assertTrue(newlyCreatedUser.get().getId() != 0);
@@ -89,6 +74,11 @@ public class RepositoriesIntegrationTest {
 		}
 	}
 	
+	public void testDeleteUser() throws Exception {
+		User basicUser = createUser();
+		userRepository.delete(basicUser);
+	}
+	
 	// private methods
 	
 	private Plan createPlan(PlansEnum plansEnum) {
@@ -99,19 +89,22 @@ public class RepositoriesIntegrationTest {
 		return new Role(rolesEnum);
 	}
 	
-	private User createBasicUser() {
-		User user = new User();
-		user.setUsername("basicUser");
-		user.setPassword("secret");
-		user.setEmail("o@b.com");
-		user.setFirstName("Okan");
-		user.setLastName("Bagci");
-		user.setPhoneNumber("12345678");
-		user.setCountry("TR");
-		user.setEnabled(true);
-		user.setDescription("A basic user");
-		user.setProfileImageUrl("https://blabla.images.com/basicuser");
+	private User createUser() {
+		Plan basicPlan = createPlan(PlansEnum.BASIC);
+		planRepository.save(basicPlan);
 		
-		return user;
+		User basicUser = UserUtils.createBasicUser();
+		basicUser.setPlan(basicPlan);
+		
+		Role basicRole = createRole(RolesEnum.BASIC);
+		roleRepository.save(basicRole);
+		
+		Set<UserRole> userRoles = new HashSet<>();
+		UserRole userRole = new UserRole(basicUser, basicRole);
+		userRoles.add(userRole);
+		
+		basicUser.getUserRoles().addAll(userRoles);
+		basicUser = userRepository.save(basicUser);
+		return basicUser;
 	}
 }
